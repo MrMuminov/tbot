@@ -1,0 +1,16 @@
+{
+  "name": "mrmuminov/mrb-tbot",
+  "description": "PHP Telegram bot mini framework",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Bahriddin Mo'minov",
+      "email": "darkshadeuz@gmail.com"
+    }
+  ],
+  "require": {
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-curl": "*"
+  }
+}
