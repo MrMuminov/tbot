@@ -12,5 +12,6 @@
     "ext-json": "*",
     "ext-mbstring": "*",
     "ext-curl": "*"
-  }
+  },
+  "minimum-stability": "dev"
 }
