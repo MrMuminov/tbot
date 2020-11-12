@@ -2,7 +2,7 @@ Telegram bot - Tbot
 ===================
 ## Instaliation
 ```shell script
- $ composer require mrmuminov/tbot
+ $ composer require mrmuminov/mrb-tbot
 ```
 
 ### Author

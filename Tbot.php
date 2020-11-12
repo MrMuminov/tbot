@@ -269,21 +269,38 @@ class Tbot
         return !!$result;
     }
 
+    /**
+     * @param array $options
+     */
     public function sendMessage($options = [])
     {
         $this->request('sendMessage', $options);
     }
 
+    /**
+     * @param array $options
+     */
     public function forwardMessage($options = [])
     {
         $this->request('forwardMessage', $options);
     }
 
+    /**
+     * @param array $options
+     */
     public function sendDocument($options = [])
     {
         $this->request('sendDocument', $options);
     }
 
+    /**
+     * @param array $keyboards
+     * @param false $type
+     * @param bool $resize_keyboard
+     * @param false $one_time_keyboard
+     * @param false $selective
+     * @return false|string
+     */
     public function createKeyboard(array $keyboards, $type = false, $resize_keyboard = true, $one_time_keyboard = false, $selective = false)
     {
         $type = $type ? $type : self::KEYBOARD_BUTTON;
@@ -343,6 +360,10 @@ class Tbot
         ]);
     }
 
+    /**
+     * @param $file_path
+     * @return string|string[]
+     */
     public function getFilePath($file_path)
     {
         return str_replace(["{bot_token}", "{file_path}"], [$this->getBotToken(), $file_path], $this->getApiFileUrl());
