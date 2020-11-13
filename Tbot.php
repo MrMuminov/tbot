@@ -9,6 +9,8 @@ namespace mrmuminov\tbot;
  */
 class Tbot
 {
+    use TbotMethods;
+
     const PARSE_HTML = "html";
     const PARSE_MARKDOWN = "markdown";
     const PARSE_MARKDOWNV2 = "markdownv2";
@@ -74,27 +76,6 @@ class Tbot
                 mkdir($this->getUserDataPath());
             }
         }
-    }
-
-    /**
-     * @param $method
-     * @param $options
-     */
-    private function request($method, $options)
-    {
-        $url = str_replace(["{bot_token}", "{method}"], [$this->getBotToken(), $method], $this->getApiUrl());
-        $ch = curl_init();
-        curl_setopt_array(
-            $ch,
-            array(
-                CURLOPT_URL => $url,
-                CURLOPT_POST => TRUE,
-                CURLOPT_RETURNTRANSFER => TRUE,
-                CURLOPT_TIMEOUT => 10,
-                CURLOPT_POSTFIELDS => $options,
-            )
-        );
-        return json_decode(curl_exec($ch), 1);
     }
 
     /**
@@ -225,7 +206,7 @@ class Tbot
      * @param $value
      * @return string
      */
-    public function generateDataPath($value): string
+    private function generateDataPath($value): string
     {
         $md5 = md5($value);
         $path = "/" . mb_substr($md5, 0, 2);
@@ -240,7 +221,7 @@ class Tbot
      * @param $filename
      * @return false|string
      */
-    public function fileRead($filename)
+    private function fileRead($filename)
     {
         if (empty($filename)) {
             return false;
@@ -258,7 +239,7 @@ class Tbot
      * @param $content
      * @return bool
      */
-    public function fileWrite($filename, $content)
+    private function fileWrite($filename, $content)
     {
         if (empty($filename) || empty($content)) {
             return false;
@@ -267,30 +248,6 @@ class Tbot
         $path = $this->getUserDataPath() . "/" . $filename;
         $result = file_put_contents($path, $content);
         return !!$result;
-    }
-
-    /**
-     * @param array $options
-     */
-    public function sendMessage($options = [])
-    {
-        $this->request('sendMessage', $options);
-    }
-
-    /**
-     * @param array $options
-     */
-    public function forwardMessage($options = [])
-    {
-        $this->request('forwardMessage', $options);
-    }
-
-    /**
-     * @param array $options
-     */
-    public function sendDocument($options = [])
-    {
-        $this->request('sendDocument', $options);
     }
 
     /**
@@ -351,13 +308,6 @@ class Tbot
         }
 
         return json_encode($result_keyboard);
-    }
-
-    public function getFile(array $document_file_id)
-    {
-        return $this->request('getFile', [
-            'file_id' => $document_file_id,
-        ]);
     }
 
     /**
