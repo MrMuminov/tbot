@@ -221,10 +221,10 @@ trait TbotMethods
     }
 
     /**
-     * @param array $document_file_id
+     * @param string $document_file_id
      * @return mixed
      */
-    public function getFile(array $document_file_id)
+    public function getFile(string $document_file_id)
     {
         return $this->request('getFile', [
             'file_id' => $document_file_id,
@@ -544,17 +544,16 @@ trait TbotMethods
     {
         $url = str_replace(["{bot_token}", "{method}"], [$this->getBotToken(), $method], $this->getApiUrl());
         $ch = curl_init();
-        curl_setopt_array(
-            $ch,
-            array(
-                CURLOPT_URL => $url,
-                CURLOPT_POST => TRUE,
-                CURLOPT_RETURNTRANSFER => TRUE,
-                CURLOPT_TIMEOUT => 10,
-                CURLOPT_POSTFIELDS => $options,
-            )
-        );
-        return json_decode(curl_exec($ch), 1);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $options);
+        $res = curl_exec($ch);
+        if (empty(curl_error($ch))) {
+            var_dump(curl_error($ch));
+            return $res;
+        }
+        return json_decode($res, 1);
+
     }
 
 }

@@ -11,14 +11,14 @@ class Tbot
 {
     use TbotMethods;
 
-    const PARSE_HTML = "html";
-    const PARSE_MARKDOWN = "markdown";
-    const PARSE_MARKDOWNV2 = "markdownv2";
-    const KEYBOARD_BUTTON = 'keyboard';
-    const KEYBOARD_INLINE = 'inline_keyboard';
-    const KEYBOARD_DEV = 'developer_keyboard';
-    const REQUEST_CONTACT = 'request_contact';
-    const REQUEST_LOCATION = 'request_location';
+    public const PARSE_HTML = "html";
+    public const PARSE_MARKDOWN = "markdown";
+    public const PARSE_MARKDOWNV2 = "markdownv2";
+    public const KEYBOARD_BUTTON = 'keyboard';
+    public const KEYBOARD_INLINE = 'inline_keyboard';
+    public const KEYBOARD_DEV = 'developer_keyboard';
+    public const REQUEST_CONTACT = 'request_contact';
+    public const REQUEST_LOCATION = 'request_location';
 
     /**
      * @var $bot_token string
@@ -43,6 +43,11 @@ class Tbot
      * {method} - this is request method name <br>
      */
     public string $api_file_url = "https://api.telegram.org/file/bot{bot_token}/{file_path}";
+    /**
+     * @var string
+     * @default ext
+     */
+    public string $data_file_format = "ext";
     /**
      * @var array
      */
@@ -69,8 +74,8 @@ class Tbot
      */
     private function init()
     {
-        // $this->setUpdate(json_decode(file_get_contents("php://input"), true));
-        $this->setUpdate(json_decode(json_encode($this->update), true));
+        $this->setUpdate(json_decode(file_get_contents("php://input"), true));
+//        $this->setUpdate(json_decode(json_encode($this->update), true));
         if (!empty($this->getUserDataPath())) {
             if (!file_exists($this->getUserDataPath())) {
                 mkdir($this->getUserDataPath());
@@ -152,7 +157,7 @@ class Tbot
             return $this->update;
         }
         $update = $this->update;
-        $exppath = mb_split(".", $path);
+        $exppath = explode(".", $path);
         if (count($exppath) < 2) {
             return isset($update[$path]) ? $update[$path] : false;
         }
@@ -182,10 +187,10 @@ class Tbot
     public function setData($key, $value, $user_id = null)
     {
         if (empty($user_id)) {
-            $user_id = $this->getUpdate('chat.id');
+            $user_id = $this->getUpdate('message.chat.id');
         }
         $path = $this->generateDataPath($user_id);
-        return $this->fileWrite($path . "/" . $user_id . "." . $key . ".", $value);
+        return $this->fileWrite($path . "/" . $user_id . "." . $key . "." . $this->data_file_format, $value);
     }
 
     /**
@@ -196,10 +201,10 @@ class Tbot
     public function getData($key, $user_id = null)
     {
         if (empty($user_id)) {
-            $user_id = $this->getUpdate('chat.id');
+            $user_id = $this->getUpdate('message.chat.id');
         }
         $path = $this->generateDataPath($user_id);
-        return $this->fileRead($path . "/" . $user_id . "." . $key . ".");
+        return $this->fileRead($path . "/" . $user_id . "." . $key . "." . $this->data_file_format);
     }
 
     /**
@@ -209,10 +214,11 @@ class Tbot
     private function generateDataPath($value): string
     {
         $md5 = md5($value);
-        $path = "/" . mb_substr($md5, 0, 2);
+        $path = $this->getUserDataPath();
+        $path .= "/" . mb_substr($md5, 0, 2);
         $path .= "/" . mb_substr($md5, 2, 2);
         if (!file_exists($path)) {
-            mkdir($path);
+            mkdir($path, 0777, true);
         }
         return $path;
     }
@@ -227,7 +233,7 @@ class Tbot
             return false;
         }
         $filename = trim($filename, "/");
-        $path = $this->getUserDataPath() . "/" . $filename;
+        $path = $filename;
         if (!file_exists($path)) {
             return false;
         }
@@ -245,7 +251,7 @@ class Tbot
             return false;
         }
         $filename = trim($filename, "/");
-        $path = $this->getUserDataPath() . "/" . $filename;
+        $path = $filename;
         $result = file_put_contents($path, $content);
         return !!$result;
     }
@@ -275,9 +281,9 @@ class Tbot
                         $tmp_keyboard = [
                             'text' => $subkeyboard,
                         ];
-                        if ($subkey == self::REQUEST_CONTACT) {
+                        if ($subkey === self::REQUEST_CONTACT) {
                             $tmp_keyboard[self::REQUEST_CONTACT] = true;
-                        } elseif ($subkey == self::REQUEST_LOCATION) {
+                        } elseif ($subkey === self::REQUEST_LOCATION) {
                             $tmp_keyboard[self::REQUEST_LOCATION] = true;
                         }
                         $result_keyboard['keyboard'][$key][] = $tmp_keyboard;
@@ -293,9 +299,9 @@ class Tbot
                         $tmp_keyboard = [
                             'text' => $subkeyboard,
                         ];
-                        if ($subkey == self::REQUEST_CONTACT) {
+                        if ($subkey === self::REQUEST_CONTACT) {
                             $tmp_keyboard[self::REQUEST_CONTACT] = true;
-                        } elseif ($subkey == self::REQUEST_LOCATION) {
+                        } elseif ($subkey === self::REQUEST_LOCATION) {
                             $tmp_keyboard[self::REQUEST_LOCATION] = true;
                         }
                         $result_keyboard['inline_keyboard'][$key][] = $tmp_keyboard;
@@ -317,6 +323,22 @@ class Tbot
     public function getFilePath($file_path)
     {
         return str_replace(["{bot_token}", "{file_path}"], [$this->getBotToken(), $file_path], $this->getApiFileUrl());
+    }
+
+    /**
+     * @return string
+     */
+    public function getDataFileFormat(): string
+    {
+        return $this->data_file_format;
+    }
+
+    /**
+     * @param string $data_file_format
+     */
+    public function setDataFileFormat(string $data_file_format): void
+    {
+        $this->data_file_format = $data_file_format;
     }
 
 }
