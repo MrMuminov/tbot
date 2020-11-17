@@ -548,9 +548,9 @@ trait TbotMethods
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $options);
         $res = curl_exec($ch);
-        if (empty(curl_error($ch))) {
+        if (!empty(curl_error($ch))) {
             var_dump(curl_error($ch));
-            return $res;
+            return json_decode($res,1);
         }
         return json_decode($res, 1);
 
